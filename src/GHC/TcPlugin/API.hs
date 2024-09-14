@@ -728,6 +728,10 @@ import GHC.TcPlugin.API.Internal
 import GHC.TcPlugin.API.Internal.Shim
 #endif
 
+#if MIN_VERSION_ghc(9,11,0)
+import GHC.Types.Unique.DSet (emptyUniqDSet)
+#endif
+
 --------------------------------------------------------------------------------
 
 -- | Run an 'IO' computation within the plugin.
@@ -1012,7 +1016,11 @@ mkPluginUnivCo
   -> TcType -- ^ LHS
   -> TcType -- ^ RHS
   -> Coercion
-mkPluginUnivCo str role lhs rhs = mkUnivCo ( PluginProv str ) role lhs rhs
+#if MIN_VERSION_ghc(9,11,0)
+mkPluginUnivCo str role lhs rhs = mkUnivCo ( PluginProv str emptyUniqDSet) role lhs rhs
+#else
+mkPluginUnivCo str role lhs rhs = mkUnivCo ( PluginProv str) role lhs rhs
+#endif
 
 -- | Conjure up an evidence term for an equality between two types
 -- at the given 'Role' ('Nominal' or 'Representational').
